@@ -1,4 +1,4 @@
-
+from datetime import date
 
 def get_month_name(integer):
     month_dict = {
@@ -17,3 +17,14 @@ def get_month_name(integer):
     }
     month_name = month_dict[integer]
     return month_name
+
+
+def month_date_range(year, month, day):
+    date_object = date(int(year), int(month), int(day))
+    start_day = 1
+    end_day = monthrange(date_object.year, date_object.month)[1]
+    month_start_date = date_object.replace(day=start_day)
+    month_end_date = date_object.replace(day=end_day)
+    start_date = month_start_date - timedelta(month_start_date.weekday())
+    end_date = month_end_date + timedelta(6 - month_end_date.weekday())
+    return (start_date, end_date)

@@ -86,10 +86,13 @@ class Shift(models.Model):
     active = models.BooleanField(default=True)
     users = models.ManyToManyField(
         User,
-        related_name='users',
+        related_name='shifts',
         blank=True,
 
     )
 
     def __str__(self):
         return '%s_%s_%s' % (self.team.team_name, self.shift_name, str(self.day))
+
+    def get_users(self):
+        
