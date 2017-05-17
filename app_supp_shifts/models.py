@@ -88,11 +88,10 @@ class Shift(models.Model):
         User,
         related_name='shifts',
         blank=True,
-
     )
 
     def __str__(self):
         return '%s_%s_%s' % (self.team.team_name, self.shift_name, str(self.day))
 
     def get_users(self):
-        
+        return self.users.all()
