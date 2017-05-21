@@ -133,8 +133,28 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
+#TEMPLATE_DIRS = (
+#    os.path.join(os.path.dirname(__file__), 'templates').replace('\\','/'),
+#)
+
+TEMPLATES = [
+{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': ['./templates',],
+    'APP_DIRS': True,
+    'OPTIONS': {
+        'context_processors': [
+            'django.template.context_processors.debug',
+            'django.template.context_processors.request',
+            'django.contrib.auth.context_processors.auth',
+            'django.contrib.messages.context_processors.messages',
+        ],
+    },
+},
+]
+
 # Login urls
 # return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'app_supp_users:landing_page'      # ...T_ULR = '/' will redirect to home page
+LOGIN_REDIRECT_URL = 'global:home_page'      # ...T_ULR = '/' will redirect to home page
 LOGOUT_REDIRECT_URL = 'global:home_page'

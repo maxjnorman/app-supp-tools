@@ -20,13 +20,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-#    url(r'', include('app_supp_calendar.urls')),
-#    url(r'', include('app_supp_global.urls')),
-#    url(r'', include('app_supp_shifts.urls')),
-#    url(r'', include('app_supp_teams.urls')),
-#    url(r'', include('app_supp_users.urls')),
-] 
-urlpatters += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-urlpatters += [
-    url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^calendar/', include('app_supp_calendar.urls', namespace='calendar')),
+    url(r'^global/', include('app_supp_global.urls', namespace='global')),
+    url(r'^shifts/', include('app_supp_shifts.urls', namespace='shifts')),
+    url(r'^teams/', include('app_supp_teams.urls', namespace='teams')),
+    url(r'^users/', include('app_supp_users.urls', namespace='users')),
 ]
+urlpatterns += [url(r'^accounts/', include('django.contrib.auth.urls'))]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -13,4 +13,4 @@ class Profile(models.Model):
     teams = models.ManyToManyField('app_supp_teams.Team', related_name='members')
 
     def __str__(self):
-        return '%s %s' % (self.first_name, self.second_name)
+        return '%s %s' % (self.user.first_name, self.user.last_name)

@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import ShiftTemplate, Shift
+
+admin.site.register(ShiftTemplate)
+admin.site.register(Shift)
