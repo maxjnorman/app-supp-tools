@@ -5,9 +5,9 @@ from app_supp_calendar.models import Year
 
 
 class Team(models.Model):
-    manager_group = models.OneToOneField(Group, related_name='team')        #use to check if User is in Group. Allow editing etc...
+    manager_group = models.OneToOneField(Group, related_name='team', null=True)        #use to check if User is in Group. Allow editing etc...
     team_name = models.CharField(max_length=50)
-    manager_group_name = models.CharField(max_length=60)
+    manager_group_name = models.CharField(max_length=60, default='No Name Set')
     start_date = models.DateField(default=timezone.now)
     active = models.BooleanField(default=True)
     default_shift_templates = models.ManyToManyField(

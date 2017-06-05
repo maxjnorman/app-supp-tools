@@ -10,7 +10,11 @@ class Profile(models.Model):
     start_date = models.DateField(default=timezone.now)
     end_date = models.DateField(blank=True, null=True)
     default_shift = models.IntegerField(default=0)
-    teams = models.ManyToManyField('app_supp_teams.Team', related_name='members')
+    teams = models.ManyToManyField(
+        'app_supp_teams.Team', 
+        related_name='members',
+        blank=True
+    )
 
     def __str__(self):
         return '%s %s' % (self.user.first_name, self.user.last_name)

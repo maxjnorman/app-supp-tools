@@ -1,0 +1,18 @@
+<p>Test landing_page</p>
+
+{% extends "app_supp_global/base.html" %}
+
+{% block content %}
+
+  <h1>Member Teams</h1>
+  {% for team in member_teams %}
+    <a href="{% url 'calendar:month_view' pk=team.pk %}">{{ team.team_name }} Calendar</a>
+    <a href="{% url 'team:team_detail' pk=team.pk %}">{{ team.team_name }} Detail</a>
+  {% empty %}
+    <p>No Member Team</p>
+  {% endfor %}
+
+  <h1>User Admin</h1>
+  <p>Go To User Admin View</p>
+
+{% endblock %}

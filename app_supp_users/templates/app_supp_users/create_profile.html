@@ -1,0 +1,12 @@
+<p>Test create_profile</p>
+
+{% extends "app_supp_users/base.html" %}
+
+{% block content %}
+  <h1>Create User Profile</h1>
+  <form method="POST" class="post-form">{% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="save btn btn-default">Save</button>
+  </form>
+
+{% endblock %}

@@ -30,6 +30,33 @@ class ShiftTemplate(models.Model):
 
 
 
+class Shift(models.Model):
+    shift_template = models.ForeignKey(
+        'app_supp_shifts.ShiftTemplate',
+        related_name='shifts',
+    )
+    day = models.DateField()
+    users = models.ManyToManyField(
+        User,
+        related_name='shifts',
+        blank=True,
+    )
+
+    def __str__(self):
+        return '%s_%s_%s' % (self.team.team_name, self.shift_name, str(self.day))
+
+    def get_users_or_none(self):
+        users = self.users.filter(
+            is_active=True
+        ) # Note: not the Profile model
+        if users.exists():
+            return users
+        else:
+            return None
+
+
+
+
 class ShiftTemplateOld(models.Model):
     team = models.ForeignKey(
         'app_supp_teams.Team',
@@ -102,23 +129,3 @@ class ShiftTemplateOld(models.Model):
             database_shifts.update(active=False)
         else:
             pass
-
-class Shift(models.Model):
-    shift_template = models.ForeignKey(
-        'app_supp_shifts.ShiftTemplate',
-        related_name='shifts',
-    )
-    day = models.DateField()
-    users = models.ManyToManyField(
-        User,
-        related_name='shifts',
-        blank=True,
-    )
-
-    def __str__(self):
-        return '%s_%s_%s' % (self.team.team_name, self.shift_name, str(self.day))
-
-    def get_users(self):
-        return self.users.filter(
-            is_active=True
-        ).values_list('username', flat=True) # Note: not the Profile model

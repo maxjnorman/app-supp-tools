@@ -1,0 +1,9 @@
+{% extends "registration/base.html" %}
+
+<p>{{ user.get_full_name }}</p>
+<p>{{ user.job_title }}</p>
+<p>Last Login: {{ user.last_login }}</p>
+
+{% block content %}
+
+{% endblock %}
