@@ -45,14 +45,14 @@ class Shift(models.Model):
     def __str__(self):
         return '%s_%s_%s' % (self.team.team_name, self.shift_name, str(self.day))
 
-    def get_users_or_none(self):
+    def get_users_or_unoccupied(self):
         users = self.users.filter(
             is_active=True
         ) # Note: not the Profile model
         if users.exists():
             return users
         else:
-            return None
+            return 'unoccupied'
 
 
 

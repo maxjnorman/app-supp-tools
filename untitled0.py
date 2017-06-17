@@ -4,60 +4,79 @@ from collections import defaultdict
 import pandas as pd
 import numpy as np
 
-dates = pd.date_range(date(2017,4,4), date(2017,4,20))
+dates = pd.date_range(date(2017,4,4), date(2017,4,20)).date
 
-class Day:
-    
-    def __init__(self, date):
-        self.date = date
-    
-    def return_date(self):
-        return date(self.date.year, self.date.month, self.date.day)
+nones = [None] * 3
+print(nones)
+nest = [nones] * 4
+print(nest)                     
+                     
+#x = np.ones((2,5,7))
+##print(x)
+#print()
+##print(x.transpose(1,0,2))
+#print(list(x))
 
-days = [Day(date=date) for date in dates]
-day_dict = dict(zip(dates, days))
-users_dict = {}
-for key in day_dict.keys():
-    users_dict[key] = day_dict[key].return_date()
-#print(users_dict.values())
+#def dates_dict(dates, variable):
+#    variable_list = [variable] * len(dates)
+#    output_list = zip(dates, variable_list)
+#    return dict(zip(dates, output_list))
+#
+#output = dates_dict(dates, 'active')
+#print(output[dates[1]])
 
-
-#maybe make a dataframe of pks pointing at dicts of objects
-list1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-lista = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l']
-list6 = [6, 7, 8, 9, 10]
-listc = ['c', 'd', 'e', 'f', 'g']
-list4 = [4, 6, 8, 10]
-listf = ['f', 'h', 'j', 'l']
-dicta1 = dict(zip(lista, list1))
-dictc6 = dict(zip(listc, days))
-dict4f = dict(zip(listf, list4))
-dicts = [dicta1, dictc6, dict4f]
-frame = pd.DataFrame(dicts)
-frame['index'] = ['A', 'B', 'C']
-frame1 = frame.set_index('index')
-array1 = frame1.values.reshape(len(dicts), int(len(list1)/6), 6)
-print()
-#print(frame1.shape[1])
-
-week_frame = pd.DataFrame(array1[:,0,:])
-#print(week_frame)
-
-for index, x in np.ndenumerate(array1):
-    if type(x) is Day:
-        array1[index] = x.return_date()
-print(array1)
-print()
-print()
-print()
-for n in range(0, array1.shape[1]):
-    print()
-    print(n)
-    print(pd.DataFrame(array1[:,n,:]))
-print()
-print()
-print()
-print(array1.shape)
+#class Day:
+#    
+#    def __init__(self, date):
+#        self.date = date
+#    
+#    def return_date(self):
+#        return date(self.date.year, self.date.month, self.date.day)
+#
+#days = [Day(date=date) for date in dates]
+#day_dict = dict(zip(dates, days))
+#users_dict = {}
+#for key in day_dict.keys():
+#    users_dict[key] = day_dict[key].return_date()
+##print(users_dict.values())
+#
+#
+##maybe make a dataframe of pks pointing at dicts of objects
+#list1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+#lista = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l']
+#list6 = [6, 7, 8, 9, 10]
+#listc = ['c', 'd', 'e', 'f', 'g']
+#list4 = [4, 6, 8, 10]
+#listf = ['f', 'h', 'j', 'l']
+#dicta1 = dict(zip(lista, list1))
+#dictc6 = dict(zip(listc, days))
+#dict4f = dict(zip(listf, list4))
+#dicts = [dicta1, dictc6, dict4f]
+#frame = pd.DataFrame(dicts)
+#frame['index'] = ['A', 'B', 'C']
+#frame1 = frame.set_index('index')
+#array1 = frame1.values.reshape(len(dicts), int(len(list1)/6), 6)
+#print()
+##print(frame1.shape[1])
+#
+#week_frame = pd.DataFrame(array1[:,0,:])
+##print(week_frame)
+#
+#for index, x in np.ndenumerate(array1):
+#    if type(x) is Day:
+#        array1[index] = x.return_date()
+#print(array1)
+#print()
+#print()
+#print()
+#for n in range(0, array1.shape[1]):
+#    print()
+#    print(n)
+#    print(pd.DataFrame(array1[:,n,:]))
+#print()
+#print()
+#print()
+#print(array1.shape)
 
 
 

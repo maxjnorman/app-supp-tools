@@ -6,10 +6,10 @@
 
   <h1>Member Teams</h1>
   {% for team in member_teams %}
-    <a href="{% url 'calendar:month_view' pk=team.pk %}">{{ team.team_name }} Calendar</a>
-    <a href="{% url 'team:team_detail' pk=team.pk %}">{{ team.team_name }} Detail</a>
+    <a href="{% url 'calendar:month_view' pk=team.pk year=date.year month=date.month day=date.day %}">{{ team.team_name }} Calendar</a>
+    <a href="{% url 'teams:team_detail' pk=team.pk %}">{{ team.team_name }} Detail</a>
   {% empty %}
-    <p>No Member Team</p>
+    <p>No Member Teams</p>
   {% endfor %}
 
   <h1>User Admin</h1>

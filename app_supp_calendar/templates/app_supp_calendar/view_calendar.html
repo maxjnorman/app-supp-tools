@@ -4,4 +4,44 @@
 
 {% block content %}
 
+  {% for week in calendar %}
+  <table>
+    <tr>
+      <th></th>
+      <th>Mon</th>
+      <th>Tue</th>
+      <th>Wed</th>
+      <th>Thu</th>
+      <th>Fri</th>
+      <th>Sat</th>
+      <th>Sun</th>
+    </tr>
+    {% for template, shift in week %}
+    <tr>
+      <td></td>
+      {% for day in shift %}
+        <td>{{ day.0 }}</td>
+      {% endfor %}
+    <tr>
+      <td>
+        <p>{{ template.shift_name }}</p>
+        <p>{{ template.start_time }} - {{ template.end_time }}</p>
+      </td>
+      {% for day in shift %}
+        <td>
+          {{ day.1 }}
+        </td>
+      {% endfor %}
+    </tr>
+      <p>
+        {{ day.0.0 }}
+        {% for shift in day %}
+          {{ shift.1 }}
+        {% endfor %}
+      </p>
+    {% endfor %}
+  </table>
+  {% endfor %}
+
+
 {% endblock %}

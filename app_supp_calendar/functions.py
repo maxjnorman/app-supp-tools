@@ -30,8 +30,14 @@ def month_date_range(year, month, day):
     end_date = month_end_date + timedelta(6 - month_end_date.weekday())
     return pd.date_range(start_date, end_date).date
 
+
 def week_date_range(year, month, day):
     date_object = date(int(year), int(month), int(day))
     start_date = date_object - timedelta(date_object.weekday())
     end_date = start_date + timedelta(7)
     return pd.date_range(start_date, end_date).date
+
+
+def shape_range(array):
+    shape = array.shape
+    return [range(n) for n in shape]

@@ -4,11 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
 
 import pandas as pd
-from datetime import date
+from datetime import date, timedelta
 from calendar import monthrange
 
-from .functions import month_date_range
+from .functions import month_date_range, shape_range
 from app_supp_shifts.models import Shift, ShiftTemplate
+from app_supp_teams.models import Team
 
 #Note : move to app_supp_calendar/classes.py
 #Note : better to get users first then get occupied shifts from there?
@@ -21,7 +22,60 @@ class ShiftCalendar:
         self.end_date = date
 
 
-    def week_pattern_dict(self, template):
+    def dates_array(self): #Note: Could merge with 'build_data_arrays'
+        dates = pd.date_range(
+            start=self.start_date,
+            end=self.end_date,
+        ).date
+        if len(dates) == 1:
+            return dates
+        else:
+            return dates.reshape(
+                int(len(dates)/7),
+                7,
+            )
+
+
+    def dummy_template(self):
+        return [
+            ShiftTemplate(
+                team=self.team,
+                shift_name='Blank',
+                shift_description='Blank',
+                start_date=self.start_date,
+                end_date=self.end_date,
+                start_time=timezone.now().time(),
+                end_time=timezone.now().time(),
+                active=True,
+                mon=False,
+                tue=False,
+                wed=False,
+                thu=False,
+                fri=False,
+                sat=False,
+                sun=False,
+            ),
+            ShiftTemplate(
+                team=self.team,
+                shift_name='Dummy',
+                shift_description='Blank',
+                start_date=self.start_date,
+                end_date=self.end_date,
+                start_time=timezone.now().time(),
+                end_time=timezone.now().time(),
+                active=True,
+                mon=True,
+                tue=True,
+                wed=True,
+                thu=True,
+                fri=True,
+                sat=True,
+                sun=True,
+            ),
+        ]
+
+
+    def week_pattern(self, template):
         weekdays = list(range(0, 7))
         week_pattern = [
             template.mon,
@@ -35,10 +89,10 @@ class ShiftCalendar:
         return dict(zip(weekdays, week_pattern))
 
 
-    def template_dates(self, template):
+    def active_template_dates(self, template):
         start_date = max(self.start_date, template.start_date)
         end_date = min(self.end_date, template.end_date)
-        pattern_dict = self.week_pattern_dict(template)
+        pattern_dict = self.week_pattern(template)
         return [
             date
             for date in pd.date_range(start_date, end_date).date
@@ -46,62 +100,58 @@ class ShiftCalendar:
         ]
 
 
-    def build_calendar_arrays(self):
-        valid_dates = pd.date_range(self.start_date, self.end_date).date
-        null_list = [None] * len(valid_dates)
-        null_dict = dict(zip(valid_dates, null_list))
+    def dates_dict(self, dates, variable):
+        variable_list = [variable] * len(dates)
+        output_list = zip(dates, variable_list)
+        return dict(zip(dates, output_list))
+
+
+    def build_data_array(self):
         templates = self.team.shift_templates.filter(
             active=True,
         ).exclude(
             start_date__lt=self.start_date,
             end_date__gt=self.end_date,
         ).order_by('start_time')
-        active_dates_dict_list = []
-        users_dict_list = []
+        if not templates.exists():
+            templates = self.dummy_template()
+        output_list = []
         for template in templates:
-            active_dates = self.template_dates(template)
-            true_list = [True] * len(active_dates)
-            active_dates_dict = dict(zip(active_dates, true_list))
-            active_dates_output = {}
-            active_dates_output.update(null_dict)
-            active_dates_output.update(active_dates_dict)
-            active_dates_dict_list.append(active_dates_output)
+            null_output = self.dates_dict(
+                pd.date_range(self.start_date, self.end_date).date,
+                'inactive'
+            )
+            active_output = self.dates_dict(
+                self.active_template_dates(template),
+                'active'
+            )
             database_shifts = template.shifts.filter(
-                day__in=active_dates
-            ).prefetch_related(
-                Prefetch(
-                    'users',
-                    queryset=template.shifts.users.filter(
-                        is_active=True
-                    )
-                )
+                day__in=self.active_template_dates(template),
             )
             database_dates = database_shifts.values_list('day', flat=True)
-            shifts_dict = dict(zip(database_dates, database_shifts))
-            users_dict = {}
-            for date in shifts_dict.keys():
-                users_dict[date] = shifts_dict[date].get_users_or_none()
-            users_output = {}
-            users_output.update(null_dict)
-            users_output.update(users_dict)
-            users_dict_list.append(users_output)
-        shifts_frame = pd.DataFrame(shift_dicts_list)
-        shifts_array = shift_frame.values.reshape(
-            len(shift_dicts_list),
-            int((shift_frame.shape[1])/7),
+            database_context = []
+            for shift in database_shifts:
+                database_context.append(shift.get_users_or_unoccupied())
+            database_output = dict(zip(
+                database_dates,
+                zip(database_shifts, database_context)
+            ))
+            output = {}
+            output.update(null_output)
+            output.update(active_output)
+            output.update(database_output)
+            output_list.append(output)
+        output_frame = pd.DataFrame(output_list)
+        output_array = output_frame.values.reshape(
+            len(output_list),
+            int((output_frame.shape[1])/7),
             7
-        )
-        users_frame = pd.DataFrame(users_dicts_list)
-        users_array = users_frame.values.reshape(
-            len(users_dicts_list),
-            int((users_frame.shape[1])/7),
-            7
-        )
-        return shifts_array, users_array
-        #for n in range(0, shift_frame.shape[1]):
-            #week_array = shift_array[:,n,:]
-            #week_frame = pd.DataFrame(week_array)  # Note: arrays are faster?
-            #etc...
+        ).transpose(1,0,2)
+        zipped_output = []
+        for week in list(output_array):
+            zipped_output.append(zip(templates, week))
+        return zipped_output
+
 
 
 
@@ -145,38 +195,34 @@ class MonthCalendar(ShiftCalendar):
 @login_required
 def month_view(request, pk, year, month, day):
     team = get_object_or_404(Team, pk=pk)
-    date_obj = date(year, month, day)
-    shifts_array, users_array = MonthCalendar(
-        date=date_obj, team=team
-    ).build_calendar_arrays()
+    date_obj = date(int(year), int(month), int(day))
+    month_calendar = MonthCalendar(date=date_obj, team=team)
+    output_array = month_calendar.build_data_array()
     return render(
         request,
         'app_supp_calendar/view_calendar.html',
         {'current_user': request.user,
         'current_profile': request.user.profile,
         'team': team,
-        'current_date': current_date,
-        'shifts_array': shifts_array,
-        'users_array': users_array,}
+        'date': date_obj,
+        'calendar': output_array,}
     )
 
 
 @login_required
 def week_view(request, pk, year, month, day):
     team = get_object_or_404(Team, pk=pk)
-    date_obj = date(year, month, day)
-    shifts_array, users_array = WeekCalendar(
-        date=date_obj, team=team
-    ).build_calendar_arrays()
+    date_obj = date(int(year), int(month), int(day))
+    week_calendar = WeekCalendar(date=date_obj, team=team)
+    output_array = week_calendar.build_data_array()
     return render(
         request,
         'app_supp_calendar/view_calendar.html',
         {'current_user': request.user,
         'current_profile': request.user.profile,
         'team': team,
-        'current_date': current_date,
-        'shifts_array': shifts_array,
-        'users_array': users_array,}
+        'date': date_obj,
+        'calendar': output_array,}
     )
 
 

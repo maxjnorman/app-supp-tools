@@ -4,5 +4,5 @@ from . import views
 
 
 urlpatterns = [
-
+    url(r'^detail/(?P<pk>\d+)/$', views.team_detail, name='team_detail'),
 ]
