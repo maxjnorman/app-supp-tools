@@ -1,7 +1,16 @@
-{% extends "app_supp_global/base.html" %}
-
-<p>Test team_base</p>
-
+<html>
+  <head>
+    <h1>{{ team.team_name }}</h1>
+  </head>
+  <body>
+    <div class="details-heading">
+      <p><a href="{% url 'global:landing_page' %}">Landing Page</a></p>
+    </div>
+    <div class="details">
+      <p>Team Start Date: {{ team.start_date }}</p>
+    </div>
+  </body>
 {% block content %}
+
 
 {% endblock %}

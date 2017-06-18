@@ -1,5 +1,26 @@
-<p>Test calendar_base</p>
-
+<html>
+  <head>
+    <h1>{{ month_name }}</h1>
+  </head>
+  <body>
+    <div class="details-heading">
+      <a href="{% url 'global:landing_page' %}">Home</a>
+      <a href="{% url 'teams:team_detail' pk=team.pk %}">Team Detail</a>
+    </div>
+    <div class="details">
+      <p>Team Name: {{ team.team_name }}</p>
+      <p>Active Templates</p>
+      {% for template in templates %}
+        <p>
+          {{ template.shift_name }}
+          {% if template.pk != 0 %}
+            <a href="{% url 'shifts:template_edit_calendar' pk=template.pk year=date.year month=date.month day=date.day %}">Edit</a>
+          {% endif %}
+        </p>
+      {% endfor %}
+    </div>
+  </body>
 {% block content %}
+
 
 {% endblock %}

@@ -1,6 +1,27 @@
-{% extends "app_supp_global/base.html" %}
+<a href="{% url 'global:landing_page' %}">Home</a>
 
-<p>Test users_base</p>
+<body>
+  <p>
+    Name: {{ user.first_name }} {{ user.last_name }}
+  </p>
+  <p>
+    Job Title: {{ profile.job_title }}
+  </p>
+  <p>
+    Job Description: {{ profile.job_description }}
+  </p>
+  <p>
+    Start Date: {{ profile.start_date }}
+  </p>
+  <p>
+    End Date:
+    {% if profile.end_date %}
+      {{ profile.start_date }}
+    {% else %}
+      No End Date Specified
+    {% endif %}
+  </p>
+</body>
 
 {% block content %}
 

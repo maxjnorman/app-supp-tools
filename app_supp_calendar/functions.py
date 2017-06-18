@@ -41,3 +41,23 @@ def week_date_range(year, month, day):
 def shape_range(array):
     shape = array.shape
     return [range(n) for n in shape]
+
+
+def get_previous_month(date_object):
+    if date_object.month == 1:
+        month = 12
+        year = date_object.year - 1
+    else:
+        month = date_object.month - 1
+        year = date_object.year
+    return date(year, month, 1)
+
+
+def get_next_month(date_object):
+    if date_object.month == 12:
+        month = 1
+        year = date_object.year + 1
+    else:
+        month = date_object.month + 1
+        year = date_object.year
+    return date(year, month, 1)

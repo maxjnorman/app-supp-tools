@@ -1,11 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 
-from .models import Upload, UploadForm
-
 import os
 
+from .models import Upload, UploadForm
 
+@login_required
 def upload_file(request, pk):
     team = get_object_or_404('app_supp_teams.Team', pk=pk)
     if request.method=="POST":
@@ -26,6 +26,7 @@ def upload_file(request, pk):
     )
 
 
+@login_required
 def delete_file(request, pk):
     upload = get_object_or_404(Upload, pk=pk)
     team = upload.team

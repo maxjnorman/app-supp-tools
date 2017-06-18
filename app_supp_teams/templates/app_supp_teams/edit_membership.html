@@ -1,0 +1,46 @@
+{% extends "app_supp_teams/base.html" %}
+
+{% block content %}
+
+  <a href="{% url 'teams:team_detail' pk=team.pk %}">Team Detail</a>
+  <div class="details-heading">
+    <h1>Managers</h1>
+  </div>
+  <div class="details">
+    {% for profile in managers %}
+      <p>
+        {{ profile.user.first_name }}
+        {{ profile.user.last_name }} -
+        {{ profile.job_title }}
+        <a href="{% url 'teams:remove_manager' team_pk=team.pk profile_pk=profile.pk %}">Remove Manager</a>
+      </p>
+    {% endfor %}
+  </div>
+  <div class="details-heading">
+    <h1>Members</h1>
+  </div>
+  <div class="details">
+    {% for profile in members %}
+      <p>
+        {{ profile.user.first_name }}
+        {{ profile.user.last_name }} -
+        {{ profile.job_title }}
+        <a href="{% url 'teams:add_manager' team_pk=team.pk profile_pk=profile.pk %}">Make Manager</a>
+        <a href="{% url 'teams:remove_member' team_pk=team.pk profile_pk=profile.pk %}">Remove Member</a>
+      </p>
+    {% endfor %}
+  </div>
+  <div class="details-heading">
+    <h1>Non-Members</h1>
+  </div>
+  <div class="details">
+    {% for profile in non_members %}
+      <p>
+        {{ profile.user.first_name }}
+        {{ profile.user.last_name }} -
+        {{ profile.job_title }}
+        <a href="{% url 'teams:add_member' team_pk=team.pk profile_pk=profile.pk %}">Add Member</a>
+      </p>
+    {% endfor %}
+  </div>
+{% endblock %}

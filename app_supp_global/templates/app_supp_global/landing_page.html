@@ -1,18 +1,30 @@
-<p>Test landing_page</p>
-
 {% extends "app_supp_global/base.html" %}
 
 {% block content %}
 
+  <h1>User Admin</h1>
+  <p><a href="{% url 'users:user_admin' %}">Go To User Admin</a></p>
+
+
   <h1>Member Teams</h1>
   {% for team in member_teams %}
-    <a href="{% url 'calendar:month_view' pk=team.pk year=date.year month=date.month day=date.day %}">{{ team.team_name }} Calendar</a>
-    <a href="{% url 'teams:team_detail' pk=team.pk %}">{{ team.team_name }} Detail</a>
+    <p>
+      {{ team.team_name }}
+      <a href="{% url 'calendar:month_view' pk=team.pk year=date.year month=date.month day=date.day %}">Month Calendar</a>
+      <a href="{% url 'teams:team_detail' pk=team.pk %}">Team Detail</a>
+    </p>
   {% empty %}
     <p>No Member Teams</p>
   {% endfor %}
-
-  <h1>User Admin</h1>
-  <p>Go To User Admin View</p>
+  {% if non_member_teams %}
+    <h1>Non-Member Teams</h1>
+    {% for team in non_member_teams %}
+      <p>
+        {{ team.team_name }}
+        <a href="{% url 'calendar:month_view' pk=team.pk year=date.year month=date.month day=date.day %}">Month Calendar</a>
+        <a href="{% url 'teams:team_detail' pk=team.pk %}">Team Detail</a>
+      </p>
+    {% endfor %}
+  {% endif %}
 
 {% endblock %}

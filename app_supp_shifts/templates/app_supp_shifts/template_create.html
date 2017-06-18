@@ -1,7 +1,10 @@
-{% extends "app_supp_users/base.html" %}
+<p>Test template_create</p>
+
+{% extends "app_supp_shifts/base.html" %}
 
 {% block content %}
-  <h1>Create User Profile</h1>
+
+  <h1>Create New Template</h1>
   <form method="POST" class="post-form">{% csrf_token %}
       {{ form.as_p }}
       <button type="submit" class="save btn btn-default">Save</button>

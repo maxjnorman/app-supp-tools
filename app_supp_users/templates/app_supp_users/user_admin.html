@@ -1,0 +1,7 @@
+{% extends "app_supp_users/base.html" %}
+
+{% block content %}
+
+  <a href="{% url 'users:user_edit' pk=user.pk %}">Edit User Settings</a>
+
+{% endblock %}

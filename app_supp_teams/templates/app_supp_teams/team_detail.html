@@ -1,0 +1,107 @@
+{% extends "app_supp_teams/base.html" %}
+
+{% block content %}
+
+  <body>
+    <p><a href="{% url 'calendar:month_view' pk=team.pk year=date.year month=date.month day=date.day %}">Month Calendar</a></p>
+    <p><a href="{% url 'shifts:template_create' pk=team.pk %}">Create Shift Template</a></p>
+    <p><a href="{% url 'teams:edit_membership' pk=team.pk %}">Edit Team Membership</a></p>
+    <div class="details-heading">
+      <h1>Managers</h1>
+    </div>
+    <div class="details">
+      {% for profile in managers %}
+        <p>
+          {{ profile.user.first_name }}
+          {{ profile.user.last_name }} -
+          {{ profile.job_title }}
+        </p>
+        <p>
+          Start Date: {{ profile.start_date }}
+        </p>
+      {% empty %}
+        <p>No Managers</p>
+      {% endfor %}
+    </div>
+    <div class="details-heading">
+      <h1>Members</h1>
+    </div>
+    <div class="details">
+      {% for profile in members %}
+        <p>
+          {{ profile.user.first_name }}
+          {{ profile.user.last_name }} -
+          {{ profile.job_title }}
+        </p>
+        <p>
+          Start Date: {{ profile.start_date }}
+        </p>
+        <p>
+          {% if profile.end_date %}
+            {{ profile.end_date }}
+          {% endif %}
+        </p>
+      {% empty %}
+        <p>No Members</p>
+      {% endfor %}
+    </div>
+    <div class="details-heading">
+      {% if active_templates %}
+        <h1>Active Shifts</h1>
+      {% endif %}
+    </div>
+    <div class="details">
+      {% for shift in active_templates %}
+        <p>
+          Shift Name: {{ shift.shift_name }}
+          <a href="{% url 'shifts:template_edit' pk=shift.pk %}">Edit</a>
+          <a href="{% url 'shifts:template_deactivate' pk=shift.pk %}">Deactivate</a>
+        </p>
+        {% if shift.start_date %}
+          <p>
+            Start Date: {{ shift.start_date }}
+          </p>
+        {% endif %}
+        {% if shift.end_date %}
+          <p>
+            End Date: {{ shift.end_date }}
+          </p>
+        {% endif %}
+        <p>
+          {{ shift.start_time }} - {{ shift.end_time }}
+        </p>
+      {% empty %}
+        <h1>No Active Shift Patterns</h1>
+      {% endfor %}
+    </div>
+    <div class="details-heading">
+      {% if inactive_templates %}
+        <h1>Inactive Shifts</h1>
+      {% endif %}
+    </div>
+    <div class="details">
+      {% for shift in inactive_templates %}
+        <p>
+          Shift Name: {{ shift.shift_name }}
+          <a href="{% url 'shifts:template_edit' pk=shift.pk %}">Edit</a>
+          <a href="{% url 'shifts:template_activate' pk=shift.pk %}">Activate</a>
+          <a href="{% url 'shifts:template_delete' pk=shift.pk %}">Delete</a>
+        </p>
+        {% if shift.start_date %}
+          <p>
+            Start Date: {{ shift.start_date }}
+          </p>
+        {% endif %}
+        {% if shift.end_date %}
+          <p>
+            End Date: {{ shift.end_date }}
+          </p>
+        {% endif %}
+        <p>
+          {{ shift.start_time }} - {{ shift.end_time }}
+        </p>
+      {% endfor %}
+    </div>
+  </body>
+
+{% endblock %}

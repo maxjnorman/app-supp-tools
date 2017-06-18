@@ -7,7 +7,7 @@ import pandas as pd
 from datetime import date, timedelta
 from calendar import monthrange
 
-from .functions import month_date_range, shape_range
+from .functions import month_date_range, shape_range, get_previous_month, get_next_month, get_month_name
 from app_supp_shifts.models import Shift, ShiftTemplate
 from app_supp_teams.models import Team
 
@@ -39,13 +39,14 @@ class ShiftCalendar:
     def dummy_template(self):
         return [
             ShiftTemplate(
+                pk=0,
                 team=self.team,
-                shift_name='Blank',
+                shift_name='No Active Shifts',
                 shift_description='Blank',
                 start_date=self.start_date,
                 end_date=self.end_date,
-                start_time=timezone.now().time(),
-                end_time=timezone.now().time(),
+                start_time='',
+                end_time='',
                 active=True,
                 mon=False,
                 tue=False,
@@ -54,24 +55,7 @@ class ShiftCalendar:
                 fri=False,
                 sat=False,
                 sun=False,
-            ),
-            ShiftTemplate(
-                team=self.team,
-                shift_name='Dummy',
-                shift_description='Blank',
-                start_date=self.start_date,
-                end_date=self.end_date,
-                start_time=timezone.now().time(),
-                end_time=timezone.now().time(),
-                active=True,
-                mon=True,
-                tue=True,
-                wed=True,
-                thu=True,
-                fri=True,
-                sat=True,
-                sun=True,
-            ),
+            )
         ]
 
 
@@ -91,11 +75,15 @@ class ShiftCalendar:
 
     def active_template_dates(self, template):
         start_date = max(self.start_date, template.start_date)
-        end_date = min(self.end_date, template.end_date)
+        if template.end_date:
+            end_date = min(self.end_date, template.end_date)
+        else:
+            end_date = self.end_date
         pattern_dict = self.week_pattern(template)
         return [
             date
-            for date in pd.date_range(start_date, end_date).date
+            for date
+            in pd.date_range(start_date, end_date).date
             if pattern_dict[date.weekday()]
         ]
 
@@ -110,8 +98,8 @@ class ShiftCalendar:
         templates = self.team.shift_templates.filter(
             active=True,
         ).exclude(
-            start_date__lt=self.start_date,
-            end_date__gt=self.end_date,
+            start_date__gt=self.end_date,
+            end_date__lt=self.start_date,
         ).order_by('start_time')
         if not templates.exists():
             templates = self.dummy_template()
@@ -131,7 +119,7 @@ class ShiftCalendar:
             database_dates = database_shifts.values_list('day', flat=True)
             database_context = []
             for shift in database_shifts:
-                database_context.append(shift.get_users_or_unoccupied())
+                database_context.append(shift.get_users_or_('unoccupied'))
             database_output = dict(zip(
                 database_dates,
                 zip(database_shifts, database_context)
@@ -147,10 +135,10 @@ class ShiftCalendar:
             int((output_frame.shape[1])/7),
             7
         ).transpose(1,0,2)
-        zipped_output = []
+        zipped_weeks = []
         for week in list(output_array):
-            zipped_output.append(zip(templates, week))
-        return zipped_output
+            zipped_weeks.append(zip(templates, week))
+        return zip(list(self.dates_array()), zipped_weeks), templates
 
 
 
@@ -196,16 +184,24 @@ class MonthCalendar(ShiftCalendar):
 def month_view(request, pk, year, month, day):
     team = get_object_or_404(Team, pk=pk)
     date_obj = date(int(year), int(month), int(day))
+    prev_date = get_previous_month(date_obj)
+    next_date = get_next_month(date_obj)
+    month_name = '%s %s' % (get_month_name(int(month)), year)
     month_calendar = MonthCalendar(date=date_obj, team=team)
-    output_array = month_calendar.build_data_array()
+    output_array, templates = month_calendar.build_data_array()
     return render(
         request,
         'app_supp_calendar/view_calendar.html',
         {'current_user': request.user,
         'current_profile': request.user.profile,
         'team': team,
+        'current_date': timezone.now().date,
         'date': date_obj,
-        'calendar': output_array,}
+        'prev_date': prev_date,
+        'next_date': next_date,
+        'month_name': month_name,
+        'calendar': output_array,
+        'templates': templates,}
     )
 
 
@@ -214,7 +210,7 @@ def week_view(request, pk, year, month, day):
     team = get_object_or_404(Team, pk=pk)
     date_obj = date(int(year), int(month), int(day))
     week_calendar = WeekCalendar(date=date_obj, team=team)
-    output_array = week_calendar.build_data_array()
+    output_array, templates = week_calendar.build_data_array()
     return render(
         request,
         'app_supp_calendar/view_calendar.html',
@@ -222,7 +218,8 @@ def week_view(request, pk, year, month, day):
         'current_profile': request.user.profile,
         'team': team,
         'date': date_obj,
-        'calendar': output_array,}
+        'calendar': output_array,
+        'templates': templates,}
     )
 
 

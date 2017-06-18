@@ -24,3 +24,24 @@ def create_profile(request):
         {'user': request.user,
         'form': form}
     )
+
+
+@login_required()
+def user_admin(request):
+    try:
+        request.user.profile
+    except ObjectDoesNotExist:
+        return redirect('users:create_profile')
+    return render(
+        request,
+        'app_supp_users/user_admin.html',
+        {'user': request.user,
+        'profile': request.user.profile,}
+    )
+
+
+@login_required
+def user_edit(request, pk):
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
