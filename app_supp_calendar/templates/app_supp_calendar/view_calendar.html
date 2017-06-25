@@ -23,7 +23,20 @@
           <p>{{ template.start_time }} - {{ template.end_time }}</p>
         </td>
         {% for day in shift %}
-          <td>{{ day.1 }}</td>
+          {% if day.context == 'inactive' %}
+            <td>inactive</td>
+          {% elif day.context == 'active' %}
+            <td><a href="{% url 'shifts:shift_create' pk=template.pk year=day.date.year month=day.date.month day=day.date.day %}">assign users (a)</a></td>
+          {% elif day.context == 'unoccupied' %}
+            <td><a href="{% url 'shifts:shift_assign' pk=day.shift.pk year=day.date.year month=day.date.month day=day.date.day %}">assign users (u)</a></td>
+          {% elif day.context == 'occupied' %}
+            <td>
+              <a href="{% url 'shifts:shift_assign' pk=day.shift.pk year=day.date.year month=day.date.month day=day.date.day %}">assign users (o)</a>
+              {% for user in day.users %}
+                <p>{{ user.get_full_name }}</p>
+              {% endfor %}
+            </td>
+          {% endif %}
         {% endfor %}
       </tr>
       {% endfor %}

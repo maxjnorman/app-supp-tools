@@ -45,3 +45,5 @@ def user_edit(request, pk):
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
+            pass
+    return None

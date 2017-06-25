@@ -17,4 +17,12 @@ urlpatterns = [
     url(r'^template/deactivate/(?P<pk>\d+)/$', views.template_deactivate, name='template_deactivate'),
     url(r'^template/delete/(?P<pk>\d+)/$', views.template_delete, name='template_delete'),
     url(r'^template/edit/(?P<pk>\d+)/$', views.template_edit, name='template_edit'),
+    url(r'^shift/create/(?P<pk>\d+)/(?P<year>[0-9]{4})/(?P<month>[0-9]+)/(?P<day>[0-9]+)/$',
+        views.shift_create,
+        name='shift_create'
+    ),
+    url(r'^shift/assign/(?P<pk>\d+)/(?P<year>[0-9]{4})/(?P<month>[0-9]+)/(?P<day>[0-9]+)/$',
+        views.shift_assign,
+        name='shift_assign'
+    ),
 ]

@@ -7,11 +7,43 @@ import pandas as pd
 from datetime import date, timedelta
 from calendar import monthrange
 
-from .functions import month_date_range, shape_range, get_previous_month, get_next_month, get_month_name
+from .functions import (
+    month_date_range,
+    shape_range,
+    get_previous_month,
+    get_next_month,
+    get_month_name,
+)
 from app_supp_shifts.models import Shift, ShiftTemplate
 from app_supp_teams.models import Team
 
 #Note : move to app_supp_calendar/classes.py
+class Day:
+
+    inactive_context = '0'
+    active_context = '1'
+    unoccupied_context = '2'
+    occupied_context = '3'
+
+    context_dict = {
+        'inactive': inactive_context,
+        'active': active_context,
+        'unoccupied': unoccupied_context,
+        'occupied': occupied_context,
+    }
+
+    def __init__(self, date):
+        self.date = date
+        self.weekday = date.weekday()
+        self.users = []
+        self.context = 'inactive'
+        self.shift = None
+
+
+    def get_context(self):
+        return self.context_dict[self.context]
+
+
 #Note : better to get users first then get occupied shifts from there?
 class ShiftCalendar:
 
@@ -88,13 +120,7 @@ class ShiftCalendar:
         ]
 
 
-    def dates_dict(self, dates, variable):
-        variable_list = [variable] * len(dates)
-        output_list = zip(dates, variable_list)
-        return dict(zip(dates, output_list))
-
-
-    def build_data_array(self):
+    def get_active_templates(self):
         templates = self.team.shift_templates.filter(
             active=True,
         ).exclude(
@@ -103,31 +129,75 @@ class ShiftCalendar:
         ).order_by('start_time')
         if not templates.exists():
             templates = self.dummy_template()
+        return templates
+
+
+    def day_date_constructor(self, dates, context):
+        day_list = []
+        for date in dates:
+            day = Day(date)
+            day.context = context
+            day_list.append(day)
+        return day_list
+
+
+    def day_shift_constructor(self, shifts, context):
+        day_list = []
+        for shift in shifts:
+            day = Day(shift.day)
+            day.context = context
+            day.shift = shift
+            day.users = shift.get_users_or_(None)
+            day_list.append(day)
+        return day_list
+
+
+    def build_data_array(self):
+        templates = self.get_active_templates()
         output_list = []
         for template in templates:
-            null_output = self.dates_dict(
-                pd.date_range(self.start_date, self.end_date).date,
-                'inactive'
-            )
-            active_output = self.dates_dict(
-                self.active_template_dates(template),
-                'active'
-            )
             database_shifts = template.shifts.filter(
                 day__in=self.active_template_dates(template),
             )
-            database_dates = database_shifts.values_list('day', flat=True)
-            database_context = []
-            for shift in database_shifts:
-                database_context.append(shift.get_users_or_('unoccupied'))
-            database_output = dict(zip(
-                database_dates,
-                zip(database_shifts, database_context)
-            ))
+            unoccupied_shifts = database_shifts.filter(
+                users=None,
+            )
+            unoccupied_dates = unoccupied_shifts.values_list('day', flat=True)
+            occupied_shifts = database_shifts.exclude(
+                users=None,
+            )
+            occupied_dates = occupied_shifts.values_list('day', flat=True)
+            inactive_dates = list(set(
+                pd.date_range(self.start_date, self.end_date).date
+            ).difference(set(
+                self.active_template_dates(template)
+            )))
+            active_dates = list(set(
+                self.active_template_dates(template)
+            ).difference(set(
+                database_shifts.values_list('day', flat=True)
+            )))
+            inactive_days = self.day_date_constructor(
+                inactive_dates,
+                'inactive',
+            )
+            active_days = self.day_date_constructor(
+                active_dates,
+                'active',
+            )
+            unoccupied_days = self.day_shift_constructor(
+                unoccupied_shifts,
+                'unoccupied',
+            )
+            occupied_days = self.day_shift_constructor(
+                occupied_shifts,
+                'occupied',
+            )
             output = {}
-            output.update(null_output)
-            output.update(active_output)
-            output.update(database_output)
+            output.update(dict(zip(inactive_dates, inactive_days)))
+            output.update(dict(zip(active_dates, active_days)))
+            output.update(dict(zip(unoccupied_dates, unoccupied_days)))
+            output.update(dict(zip(occupied_dates, occupied_days)))
             output_list.append(output)
         output_frame = pd.DataFrame(output_list)
         output_array = output_frame.values.reshape(
@@ -139,7 +209,6 @@ class ShiftCalendar:
         for week in list(output_array):
             zipped_weeks.append(zip(templates, week))
         return zip(list(self.dates_array()), zipped_weeks), templates
-
 
 
 

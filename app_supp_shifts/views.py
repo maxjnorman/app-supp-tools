@@ -1,10 +1,90 @@
+from django import forms
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
-from .models import ShiftTemplate
-from .forms import TemplateForm
+from datetime import date
+
+from .models import Shift, ShiftTemplate
+from .forms import TemplateForm, ShiftForm
 from app_supp_teams.models import Team
+from app_supp_shifts.models import ShiftTemplate
+
+
+@login_required
+def shift_create_old(request, pk, year, month, day):
+    template = get_object_or_404(ShiftTemplate, pk=pk)
+    date_obj = date(int(year), int(month), int(day))
+    if request.method == "POST":
+        form = ShiftForm(request.POST)
+        if form.is_valid():
+            shift = form.save(commit=False)
+            shift.shift_template = template
+            shift.day = date_obj
+            shift.save()
+            form.save_m2m()
+            return redirect(
+                'calendar:month_view',
+                pk=template.team.pk,
+                year=year,
+                month=month,
+                day=day
+            )
+    else:
+        form = ShiftForm()
+    return render(
+        request,
+        'app_supp_shifts/shift_create.html',
+        {'form': form}
+    )
+
+
+@login_required
+def shift_create(request, pk, year, month, day):
+    template = get_object_or_404(ShiftTemplate, pk=pk)
+    date_obj = date(int(year), int(month), int(day))
+    shift = Shift(
+        day=date_obj,
+        shift_template=template
+    )
+    shift.save()
+    return redirect(
+        'shifts:shift_assign',
+        pk=shift.pk,
+        year=date_obj.year,
+        month=date_obj.month,
+        day=date_obj.day,
+    )
+
+
+@login_required
+def shift_assign(request, pk, year, month, day):
+    shift = get_object_or_404(Shift, pk=pk)
+    date_obj = date(int(year), int(month), int(day))
+    if request.method == "POST":
+        form = ShiftForm(request.POST, instance=shift)
+        if form.is_valid():
+            shift = form.save(commit=False)
+            shift.save()
+            form.save_m2m()
+            return redirect(
+                'calendar:month_view',
+                pk=shift.shift_template.team.pk,
+                year=year,
+                month=month,
+                day=day,
+            )
+    else:
+        form = ShiftForm(instance=shift)
+    return render(
+        request,
+        'app_supp_shifts/shift_create.html',
+        {'form': form}
+    )
+
+
+
 
 @login_required
 def template_activate(request, pk):
