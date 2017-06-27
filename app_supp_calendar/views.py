@@ -18,6 +18,23 @@ from app_supp_shifts.models import Shift, ShiftTemplate
 from app_supp_teams.models import Team
 
 #Note : move to app_supp_calendar/classes.py
+class Week:
+
+    def __init__(self, dates_list):
+        self.dates = dates_list
+        self.shifts = []
+        self.week_start = None
+
+
+    def get_week_start(self):
+        if len(self.dates) > 0:
+            self.week_start = min(self.dates)
+        else:
+            pass
+
+
+
+
 class Day:
 
     inactive_context = '0'
@@ -34,10 +51,10 @@ class Day:
 
     def __init__(self, date):
         self.date = date
-        self.weekday = date.weekday()
+        self.weekday = date.weekday()#RemoveThis
         self.users = []
         self.context = 'inactive'
-        self.shift = None
+        self.shift = None#RemoveThis
 
 
     def get_context(self):
