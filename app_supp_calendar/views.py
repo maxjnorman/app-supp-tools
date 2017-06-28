@@ -215,7 +215,7 @@ class ShiftCalendar:
             output.update(dict(zip(active_dates, active_days)))
             output.update(dict(zip(unoccupied_dates, unoccupied_days)))
             output.update(dict(zip(occupied_dates, occupied_days)))
-            output_list.append(output) #Note: end up with a list of dictionaries. Each dict with a template
+            output_list.append(output) #Note: end up with a list of dictionaries. Each dict corresponding to a template
         #Turn dicts into dataframs
         #Turn dataframes into arrays
         #Chop arrays up into weeks
