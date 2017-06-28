@@ -37,6 +37,7 @@ class Week:
 
 class Day:
 
+    #Note: context dict and the 4 variables are not needed, doens;t work quite as desired
     inactive_context = '0'
     active_context = '1'
     unoccupied_context = '2'
@@ -163,10 +164,66 @@ class ShiftCalendar:
         for shift in shifts:
             day = Day(shift.day)
             day.context = context
-            day.shift = shift
             day.users = shift.get_users_or_(None)
             day_list.append(day)
         return day_list
+    
+    
+    def build_data_array_new(self):
+        templates = self.get_active_templates()
+        output_list = []
+        for template in templates:
+            database_shifts = template.shifts.filter(
+                day__in=self.active_template_dates(template),
+            )
+            unoccupied_shifts = database_shifts.filter(
+                users=None,
+            )
+            occupied_shifts = database_shifts.exclude(
+                users=None,
+            )
+            inactive_dates = list(set(
+                pd.date_range(self.start_date, self.end_date).date
+            ).difference(set(
+                self.active_template_dates(template)
+            )))
+            active_dates = list(set(
+                self.active_template_dates(template)
+            ).difference(set(
+                database_shifts.values_list('day', flat=True)
+            )))
+            unoccupied_dates = unoccupied_shifts.values_list('day', flat=True)
+            occupied_dates = occupied_shifts.values_list('day', flat=True)
+            inactive_days = self.day_date_constructor(
+                inactive_dates,
+                'inactive',
+            )
+            active_days = self.day_date_constructor(
+                active_dates,
+                'active',
+            )
+            unoccupied_days = self.day_shift_constructor(
+                unoccupied_shifts,
+                'unoccupied',
+            )
+            occupied_days = self.day_shift_constructor(
+                occupied_shifts,
+                'occupied',
+            )
+            output = {}
+            output.update(dict(zip(inactive_dates, inactive_days)))
+            output.update(dict(zip(active_dates, active_days)))
+            output.update(dict(zip(unoccupied_dates, unoccupied_days)))
+            output.update(dict(zip(occupied_dates, occupied_days)))
+            output_list.append(output) #Note: end up with a list of dictionaries. Each dict with a template
+        #Turn dicts into dataframs
+        #Turn dataframes into arrays
+        #Chop arrays up into weeks
+        #Zip each list of weeks with the list of templates
+        #Will end up with 4 or 5 lists of week:template pairs
+        #Assign each list to a Week obj
+        #Need to have gotten the dates by now? use the first and last Day obj?
+            
 
 
     def build_data_array(self):
@@ -215,7 +272,6 @@ class ShiftCalendar:
             output.update(dict(zip(active_dates, active_days)))
             output.update(dict(zip(unoccupied_dates, unoccupied_days)))
             output.update(dict(zip(occupied_dates, occupied_days)))
-            output_list.append(output)
         output_frame = pd.DataFrame(output_list)
         output_array = output_frame.values.reshape(
             len(output_list),
