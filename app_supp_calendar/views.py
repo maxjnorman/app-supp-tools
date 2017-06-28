@@ -20,23 +20,26 @@ from app_supp_teams.models import Team
 #Note : move to app_supp_calendar/classes.py
 class Week:
 
-    def __init__(self, dates_list):
+    def __init__(self, dates_list, data):
         self.dates = dates_list
-        self.shifts = []
-        self.week_start = None
+        self.data = data
+        self.week_start = min(dates_list)
+        self.rows = []
 
 
-    def get_week_start(self):
-        if len(self.dates) > 0:
-            self.week_start = min(self.dates)
-        else:
-            pass
 
+
+class WeekRow:
+
+    def __init__(self, template, shifts):
+        self.template = template
+        self.shifts = shifts
 
 
 
 class Day:
 
+    #Note: context dict and the 4 variables are not needed, doens;t work quite as desired
     inactive_context = '0'
     active_context = '1'
     unoccupied_context = '2'
@@ -163,13 +166,12 @@ class ShiftCalendar:
         for shift in shifts:
             day = Day(shift.day)
             day.context = context
-            day.shift = shift
             day.users = shift.get_users_or_(None)
             day_list.append(day)
         return day_list
 
 
-    def build_data_array(self):
+    def build_calendar(self):
         templates = self.get_active_templates()
         output_list = []
         for template in templates:
@@ -179,11 +181,9 @@ class ShiftCalendar:
             unoccupied_shifts = database_shifts.filter(
                 users=None,
             )
-            unoccupied_dates = unoccupied_shifts.values_list('day', flat=True)
             occupied_shifts = database_shifts.exclude(
                 users=None,
             )
-            occupied_dates = occupied_shifts.values_list('day', flat=True)
             inactive_dates = list(set(
                 pd.date_range(self.start_date, self.end_date).date
             ).difference(set(
@@ -194,6 +194,8 @@ class ShiftCalendar:
             ).difference(set(
                 database_shifts.values_list('day', flat=True)
             )))
+            unoccupied_dates = unoccupied_shifts.values_list('day', flat=True)
+            occupied_dates = occupied_shifts.values_list('day', flat=True)
             inactive_days = self.day_date_constructor(
                 inactive_dates,
                 'inactive',
@@ -215,17 +217,38 @@ class ShiftCalendar:
             output.update(dict(zip(active_dates, active_days)))
             output.update(dict(zip(unoccupied_dates, unoccupied_days)))
             output.update(dict(zip(occupied_dates, occupied_days)))
-            output_list.append(output)
+            output_list.append(output)  #Note: end up with a list of dictionaries. Each dict corresponding to a template
+        #Turn dicts into dataframe
         output_frame = pd.DataFrame(output_list)
+        #Turn dataframe into array
+        #Chop array up into weeks
         output_array = output_frame.values.reshape(
             len(output_list),
             int((output_frame.shape[1])/7),
             7
-        ).transpose(1,0,2)
-        zipped_weeks = []
-        for week in list(output_array):
-            zipped_weeks.append(zip(templates, week))
-        return zip(list(self.dates_array()), zipped_weeks), templates
+        ).transpose(1,0,2)  #Note: first_week = output_array[0]
+        #Zip each list of weeks with the list of templates
+        #Will end up with 5 (or 4) lists of template:week pairs
+        output = [zip(templates, week) for week in output_array]
+        #Get date ranges for weeks
+        dates_array = pd.date_range(self.start_date, self.end_date).date.reshape(
+            int(len(pd.date_range(self.start_date, self.end_date))/7),
+            7,
+        )
+        #Assign each list to a Week obj
+        weeks = [
+            Week(list(dates), list(shifts))
+            for dates, shifts
+            in zip(dates_array, output)
+        ]
+        #pretty it up by making it a class function? or just making it better earlier
+        for week in weeks:
+            for item in week.data:
+                week.rows.append(WeekRow(item[0], item[1]))
+#        testtemplate = weeks[0].rows[0].template
+#        testshifts = weeks[0].rows[0].shifts
+#        testday = testshifts[0].date
+        return weeks
 
 
 
@@ -274,7 +297,7 @@ def month_view(request, pk, year, month, day):
     next_date = get_next_month(date_obj)
     month_name = '%s %s' % (get_month_name(int(month)), year)
     month_calendar = MonthCalendar(date=date_obj, team=team)
-    output_array, templates = month_calendar.build_data_array()
+    calendar = month_calendar.build_calendar()
     return render(
         request,
         'app_supp_calendar/view_calendar.html',
@@ -286,8 +309,7 @@ def month_view(request, pk, year, month, day):
         'prev_date': prev_date,
         'next_date': next_date,
         'month_name': month_name,
-        'calendar': output_array,
-        'templates': templates,}
+        'calendar': calendar,}
     )
 
 
@@ -296,7 +318,7 @@ def week_view(request, pk, year, month, day):
     team = get_object_or_404(Team, pk=pk)
     date_obj = date(int(year), int(month), int(day))
     week_calendar = WeekCalendar(date=date_obj, team=team)
-    output_array, templates = week_calendar.build_data_array()
+    output_array, templates = week_calendar.build_calendar()
     return render(
         request,
         'app_supp_calendar/view_calendar.html',
