@@ -8,40 +8,43 @@
       <a href="{% url 'calendar:month_view' pk=team.pk year=current_date.year month=current_date.month day=current_date.day %}">Current Month</a>
       <a href="{% url 'calendar:month_view' pk=team.pk year=next_date.year month=next_date.month day=next_date.day %}">Next Month</a>
     </div>
-    {% for dates, week in calendar %}
+    {% for week in calendar %}
     <table>
       <tr>
         <td></td>
-        {% for day in dates %}
-          <td>{{ day }}</td>
+        {% for date in week.dates %}
+          <td>{{ date }}</td>
         {% endfor %}
       </tr>
-      {% for template, shift in week %}
-      <tr>
-        <td>
-          <p>{{ template.shift_name }}</p>
-          <p>{{ template.start_time }} - {{ template.end_time }}</p>
-        </td>
-        {% for day in shift %}
-          {% if day.context == 'inactive' %}
-            <td>inactive</td>
-          {% elif day.context == 'active' %}
-            <td><a href="{% url 'shifts:shift_create' pk=template.pk year=day.date.year month=day.date.month day=day.date.day %}">assign users (a)</a></td>
-          {% elif day.context == 'unoccupied' %}
-            <td><a href="{% url 'shifts:shift_assign' pk=day.shift.pk year=day.date.year month=day.date.month day=day.date.day %}">assign users (u)</a></td>
-          {% elif day.context == 'occupied' %}
-            <td>
-              <a href="{% url 'shifts:shift_assign' pk=day.shift.pk year=day.date.year month=day.date.month day=day.date.day %}">assign users (o)</a>
-              {% for user in day.users %}
-                <p>{{ user.get_full_name }}</p>
-              {% endfor %}
-            </td>
-          {% endif %}
-        {% endfor %}
-      </tr>
+      {% for row in week.rows %}
+        <tr>
+          <td>
+            <p>{{ row.template.shift_name }}</p>
+            <p>{{ row.template.start_time }} - {{ row.template.end_time }}</p>
+          </td>
+          {% for day in row.shifts %}
+            {% if day.context == 'inactive' %}
+              <td>inactive</td>
+            {% elif day.context == 'active' %}
+              <td><a href="{% url 'shifts:shift_create' pk=row.template.pk year=day.date.year month=day.date.month day=day.date.day %}">edit (a)</a></td>
+            {% elif day.context == 'unoccupied' %}
+              <td><a href="{% url 'shifts:shift_assign' pk=day.shift.pk year=day.date.year month=day.date.month day=day.date.day %}">edit (u)</a></td>
+            {% elif day.context == 'occupied' %}
+              <td>
+                <a href="{% url 'shifts:shift_assign' pk=day.shift.pk year=day.date.year month=day.date.month day=day.date.day %}">edit (o)</a>
+                <p>Assigned Users:</p>
+                {% for user in day.users %}
+                  <p>{{ user.get_full_name }}</p>
+                {% endfor %}
+              </td>
+            {% endif %}
+          {% endfor %}
+        </tr>
       {% endfor %}
     </table>
+    <br>
+    <br>
+    <br>
     {% endfor %}
-  </body>
 
 {% endblock %}

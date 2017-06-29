@@ -27,6 +27,12 @@ class Week:
         self.rows = []
 
 
+    def format_dates(self):
+        #make the dates pretty
+        #maybe, e.g., 'Mon 13th June'
+        pass
+
+
 
 
 class WeekRow:
@@ -34,6 +40,7 @@ class WeekRow:
     def __init__(self, template, shifts):
         self.template = template
         self.shifts = shifts
+
 
 
 
@@ -57,11 +64,13 @@ class Day:
         self.weekday = date.weekday()#RemoveThis
         self.users = []
         self.context = 'inactive'
-        self.shift = None#RemoveThis
+        self.shift = None
 
 
     def get_context(self):
         return self.context_dict[self.context]
+
+
 
 
 #Note : better to get users first then get occupied shifts from there?
@@ -166,6 +175,7 @@ class ShiftCalendar:
         for shift in shifts:
             day = Day(shift.day)
             day.context = context
+            day.shift = shift
             day.users = shift.get_users_or_(None)
             day_list.append(day)
         return day_list
@@ -241,7 +251,7 @@ class ShiftCalendar:
             for dates, shifts
             in zip(dates_array, output)
         ]
-        #pretty it up by making it a class function? or just making it better earlier
+        #pretty it up by making it a class function? or just make it better earlier
         for week in weeks:
             for item in week.data:
                 week.rows.append(WeekRow(item[0], item[1]))
