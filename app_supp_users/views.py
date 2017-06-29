@@ -5,6 +5,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from .forms import ProfileForm
 
 @login_required()
+def create_user(request):
+    pass
+    
+
+@login_required()
 def create_profile(request):
     if request.method == 'POST':
         form = ProfileForm(request.POST)
