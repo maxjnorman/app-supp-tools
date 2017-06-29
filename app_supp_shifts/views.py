@@ -12,32 +12,7 @@ from app_supp_teams.models import Team
 from app_supp_shifts.models import ShiftTemplate
 
 
-@login_required
-def shift_create_old(request, pk, year, month, day):
-    template = get_object_or_404(ShiftTemplate, pk=pk)
-    date_obj = date(int(year), int(month), int(day))
-    if request.method == "POST":
-        form = ShiftForm(request.POST)
-        if form.is_valid():
-            shift = form.save(commit=False)
-            shift.shift_template = template
-            shift.day = date_obj
-            shift.save()
-            form.save_m2m()
-            return redirect(
-                'calendar:month_view',
-                pk=template.team.pk,
-                year=year,
-                month=month,
-                day=day
-            )
-    else:
-        form = ShiftForm()
-    return render(
-        request,
-        'app_supp_shifts/shift_create.html',
-        {'form': form}
-    )
+
 
 
 @login_required
@@ -80,7 +55,7 @@ def shift_assign(request, pk, year, month, day):
     return render(
         request,
         'app_supp_shifts/shift_create.html',
-        {'form': form}
+        {'form': form,}
     )
 
 
@@ -109,7 +84,8 @@ def template_create(request, pk):
     return render(
         request,
         'app_supp_shifts/template_create.html',
-        {'form': form}
+        {'form': form,
+        'team': team,}
     )
 
 
@@ -158,7 +134,8 @@ def template_edit(request, pk):
     return render(
         request,
         'app_supp_shifts/template_create.html',
-        {'form': form}
+        {'form': form,
+        'team': template.team,}
     )
 
 

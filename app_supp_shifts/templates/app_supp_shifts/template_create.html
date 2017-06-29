@@ -3,7 +3,7 @@
 {% extends "app_supp_shifts/base.html" %}
 
 {% block content %}
-
+  <a href="{% url 'teams:team_detail' pk=team.pk %}">Team Detail</a>
   <h1>Configure Template</h1>
   <form method="POST" class="post-form">{% csrf_token %}
       {{ form.as_p }}

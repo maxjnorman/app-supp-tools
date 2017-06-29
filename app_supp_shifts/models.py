@@ -12,12 +12,13 @@ class ShiftTemplate(models.Model):
     )
     shift_name = models.CharField(max_length=25)
     shift_description = models.CharField(max_length=50)
+    active = models.BooleanField(default=True)
+    deleted_date = models.DateTimeField(blank=True, null=True)
+    required = models.BooleanField(default=False)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     start_time = models.TimeField()
     end_time = models.TimeField()
-    active = models.BooleanField(default=True)
-    deleted_date = models.DateTimeField(blank=True, null=True)
     mon = models.BooleanField(default=True)
     tue = models.BooleanField(default=True)
     wed = models.BooleanField(default=True)
@@ -25,6 +26,7 @@ class ShiftTemplate(models.Model):
     fri = models.BooleanField(default=True)
     sat = models.BooleanField(default=False)
     sun = models.BooleanField(default=False)
+    repeat = models.IntegerField(default=1)
 
     def __str__(self):
         return '%s_%s' % (self.team.team_name, self.shift_name)
@@ -45,6 +47,7 @@ class Shift(models.Model):
 
     def __str__(self):
         return '%s_%s' % (self.shift_template.shift_name, str(self.day))
+
 
     def get_users_or_(self, variable):
         users = self.users.filter(

@@ -32,7 +32,6 @@
             {% elif day.context == 'occupied' %}
               <td>
                 <a href="{% url 'shifts:shift_assign' pk=day.shift.pk year=day.date.year month=day.date.month day=day.date.day %}">edit (o)</a>
-                <p>Assigned Users:</p>
                 {% for user in day.users %}
                   <p>{{ user.get_full_name }}</p>
                 {% endfor %}

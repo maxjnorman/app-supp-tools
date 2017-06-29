@@ -13,6 +13,7 @@ class Team(models.Model):
     def __str__(self):
         return self.team_name
 
+
     def create_manager_group(self):
         if hasattr(self, manager_group):
             if self.manager_group.name == self.manager_group_name:
@@ -25,3 +26,31 @@ class Team(models.Model):
             manager_group.save()
             self.manager_group = manager_group
             self.save()
+
+
+    def start_time(self):
+        return min(
+            team.shift_templates.filter(
+                active=True,
+            ).exclude(
+                deleted_date__lte=timezone.now(),
+                start_date__gte=timezone.now().date,
+                end_date__lte=timezone.now().date,
+            ).values_list(
+                'start_time', flat=True
+            ), default=None
+        )
+
+
+    def end_time(self):
+        return max(
+            team.shift_templates.filter(
+                active=True,
+            ).exclude(
+                deleted_date__lte=timezone.now(),
+                start_date__gte=timezone.now().date,
+                end_date__lte=timezone.now().date,
+            ).values_list(
+                'end_time', flat=True
+            ), default=None
+        )
