@@ -12,7 +12,6 @@
       {{ team.team_name }}
       <a href="{% url 'calendar:month_view' pk=team.pk year=date.year month=date.month day=date.day %}">Month Calendar</a>
       <a href="{% url 'teams:team_detail' pk=team.pk %}">Team Detail</a>
-      <a href="{% url 'upload:manage_documents' pk=team.pk %}">Manage Documents</a>
     </p>
   {% empty %}
     <p>No Member Teams</p>

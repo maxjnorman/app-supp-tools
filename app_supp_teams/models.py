@@ -4,6 +4,10 @@ from django.contrib.auth.models import Group
 
 
 class Team(models.Model):
+    #Note: might need just one admin to do membership changes.
+    #Avoid multiple people editing db at once(?)
+    #team_admin = models.ForeignKey(User, related_name='')
+    #Could limit the size of the manager group to 1(?)
     manager_group = models.OneToOneField(Group, related_name='team', null=True)        #use to check if User is in Group. Allow editing etc...
     team_name = models.CharField(max_length=50)
     start_date = models.DateField(default=timezone.now)

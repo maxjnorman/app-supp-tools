@@ -6,6 +6,7 @@
     <p><a href="{% url 'calendar:month_view' pk=team.pk year=date.year month=date.month day=date.day %}">Month Calendar</a></p>
     <p><a href="{% url 'shifts:template_create' pk=team.pk %}">Create Shift Template</a></p>
     <p><a href="{% url 'teams:edit_membership' pk=team.pk %}">Edit Team Membership</a></p>
+    <p><a href="{% url 'upload:manage_documents' pk=team.pk %}">Manage Documents</a></p>
     <div class="details-heading">
       <h1>Managers</h1>
     </div>

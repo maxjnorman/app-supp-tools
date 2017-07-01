@@ -3,13 +3,25 @@
 {% block content %}
 
   <h1>{{ team.team_name }}</h1>
-  <p>Document Managment</p>
+  <a href="{% url 'teams:team_detail' pk=team.pk %}">Team Detail</a>
+  <h1>Document Managment</h1>
   <a href="{% url 'upload:upload_file' pk=team.pk %}">Upload Document</a>
 
-  <p>Current Uploads</p>
-    {% for upload in uploads %}
-      {{ upload.file_name }}
+  <h1>Current Uploads</h1>
+    {% for upload in active_uploads %}
+      <p>
+        <a href="{% url 'upload:deactive_file' pk=upload.pk %}">Deactivate</a>
+        <a href="{{ upload.docfile.url }}">Download</a>
+        File Name: {{ upload.file_name }}
+      </p>
     {% endfor %}
-  </p>
+    <h1>Archived Uploads</h1>
+      {% for upload in archived_uploads %}
+        <p>
+          <a href="{% url 'upload:active_file' pk=upload.pk %}">Activate</a>
+          <a href="{% url 'upload:delete_file' pk=upload.pk %}">Delete</a>
+          File Name: {{ upload.file_name }}
+        </p>
+      {% endfor %}
 
 {% endblock %}
