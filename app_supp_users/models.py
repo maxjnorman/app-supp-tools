@@ -17,3 +17,13 @@ class Profile(models.Model):
 
     def __str__(self):
         return '%s %s' % (self.user.first_name, self.user.last_name)
+
+
+#Could be used to accept/reject memebership offers for managing people
+class Management(models.Model):
+    manager = models.ForeignKey(User, related_name='workers')
+    user = models.ForeignKey(User, related_name='managers')
+    #accepted = models.BooleanField(default=False)
+    accepted_date = models.DateTimeField(blank=True, null=True)
+    rejected_date = models.DateTimeField(blank=True, null=True)
+    invite_message = models.CharField(max_length=250, default='Manager Invite')

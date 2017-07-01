@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^', include('app_supp_global.urls', namespace='global')),
     url(r'^shifts/', include('app_supp_shifts.urls', namespace='shifts')),
     url(r'^teams/', include('app_supp_teams.urls', namespace='teams')),
+    url(r'^tickets/', include('app_supp_tickets.urls', namespace='tickets')),
     url(r'^upload/', include('app_supp_upload.urls', namespace='upload')),
     url(r'^users/', include('app_supp_users.urls', namespace='users')),
 ]

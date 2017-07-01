@@ -1,12 +1,12 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 
 
 class Team(models.Model):
     #Note: might need just one admin to do membership changes.
     #Avoid multiple people editing db at once(?)
-    #team_admin = models.ForeignKey(User, related_name='')
+    #manager = models.ForeignKey(User, related_name='managed_teams')
     #Could limit the size of the manager group to 1(?)
     manager_group = models.OneToOneField(Group, related_name='team', null=True)        #use to check if User is in Group. Allow editing etc...
     team_name = models.CharField(max_length=50)
@@ -58,3 +58,13 @@ class Team(models.Model):
                 'end_time', flat=True
             ), default=None
         )
+
+
+#Could be used to accept/reject memebership offers for teams
+class Membership(models.Model):
+    team = models.ForeignKey(Team, related_name='memberships')
+    user = models.ForeignKey(User, related_name='memberships')
+    #accepted = models.BooleanField(default=False)
+    accepted_date = models.DateTimeField(blank=True, null=True)
+    rejected_date = models.DateTimeField(blank=True, null=True)
+    invite_message = models.CharField(max_length=250, default='Team Invite')

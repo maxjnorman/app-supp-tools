@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'app_supp_global',
     'app_supp_shifts',
     'app_supp_teams',
+    'app_supp_tickets',
     'app_supp_upload',
     'app_supp_users',
 ]
