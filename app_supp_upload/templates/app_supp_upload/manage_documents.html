@@ -1,0 +1,15 @@
+{% extends "app_supp_upload/base.html" %}
+
+{% block content %}
+
+  <h1>{{ team.team_name }}</h1>
+  <p>Document Managment</p>
+  <a href="{% url 'upload:upload_file' pk=team.pk %}">Upload Document</a>
+
+  <p>Current Uploads</p>
+    {% for upload in uploads %}
+      {{ upload.file_name }}
+    {% endfor %}
+  </p>
+
+{% endblock %}

@@ -5,7 +5,23 @@ import os
 
 from .models import Upload, UploadForm
 
-@login_required
+@login_required()
+def manage_documents(request, pk):
+    team = get_object_or_404('app_supp_teams.Team', pk=pk)
+    uploads = team.uploads.filter(
+        active=True
+    ).order_by(
+        '-upload_datetime'
+    )
+    return render(
+        request,
+        'app_supp_uploads/manage_documents.html',
+        {'team': team,
+        'uploads': uploads,}
+    )
+
+
+@login_required()
 def upload_file(request, pk):
     team = get_object_or_404('app_supp_teams.Team', pk=pk)
     if request.method=="POST":
@@ -20,7 +36,7 @@ def upload_file(request, pk):
     files=Upload.objects.all()
     return render(
         request,
-        'uploader/upload_file.html',
+        'app_supp_upload/upload_file.html',
         {'form':form,
         'files':files}
     )

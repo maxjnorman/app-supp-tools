@@ -35,4 +35,6 @@ class TemplateForm(forms.ModelForm):
             'fri',
             'sat',
             'sun',
+            'repeat',
+            'required',
         )

@@ -1,0 +1,10 @@
+<p>Name: {{ user.get_full_name }}</p>
+<p>Job Title: {{ profile.job_title }}</p>
+<p>Last Login: {{ user.last_login }}</p>
+<div class="details-heading">
+  <p><a href="{% url 'global:landing_page' %}">Landing Page</a></p>
+</div>
+
+{% block content %}
+
+{% endblock %}

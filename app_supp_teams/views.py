@@ -84,7 +84,10 @@ def add_manager(request, team_pk, profile_pk):
 def remove_manager(request, team_pk, profile_pk):
     team = get_object_or_404(Team, pk=team_pk)
     profile = get_object_or_404(Profile, pk=profile_pk)
-    profile.user.groups.remove(team.manager_group)
+    if team.manager_group.user_set.count() > 1:
+        profile.user.groups.remove(team.manager_group)
+    else:
+        pass
     return edit_membership(request, pk=team.pk)
 
 

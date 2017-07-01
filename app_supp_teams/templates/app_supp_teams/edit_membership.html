@@ -3,6 +3,7 @@
 {% block content %}
 
   <a href="{% url 'teams:team_detail' pk=team.pk %}">Team Detail</a>
+  <p><a href="{% url 'users:admin_user_create' team_pk=team.pk %}">Create New Member</a></p>
   <div class="details-heading">
     <h1>Managers</h1>
   </div>

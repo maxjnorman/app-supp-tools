@@ -1,10 +1,10 @@
 <p>Test template_create</p>
 
-{% extends "app_supp_shifts/base.html" %}
+{% extends "app_supp_users/base.html" %}
 
 {% block content %}
-
-  <h1>Configure Shift</h1>
+  <a href="{% url 'teams:team_detail' pk=team.pk %}">Team Detail</a>
+  <h1>Configure User</h1>
   <form method="POST" class="post-form">{% csrf_token %}
       {{ form.as_p }}
       <button type="submit" class="save btn btn-default">Save</button>
