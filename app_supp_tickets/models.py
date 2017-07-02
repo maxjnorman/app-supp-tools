@@ -23,7 +23,7 @@ class UserMap(models.Model):
 
 
 class Ticket(models.Model):
-    code = models.PositiveSmallIntegerField()
+    code = models.PositiveSmallIntegerField(unique=True)
     #could use string instead of fk(?)
     #might be better to use a TeamMap object (if the usermaps turn out well)
     #might be good for deleting / altering teams
@@ -36,7 +36,7 @@ class Ticket(models.Model):
     created_date = models.DateTimeField()
     #last_modified = models.DateTimeField() #Not needed?
     priority = models.PositiveSmallIntegerField(default=3)
-    sla_date = models.DateTimeField()
+    sla_date = models.DateTimeField(blank=True, null=True)
     #status = models.PositiveSmallIntegerField(max_length=1) #Might not be needed - implied from resolved date
     resolved_date = models.DateTimeField(blank=True, null=True)
     #sla_achieved = models.NullBooleanField(null=True)
@@ -46,7 +46,7 @@ class Ticket(models.Model):
     affected_department = models.CharField(default='unknown', max_length=50) #Could be a foreignkey but ++complexity overall
 
     def __str__(self):
-        return self.ir_code
+        return 'IR%s' % (self.code)
 
 
     def is_resolved(self):

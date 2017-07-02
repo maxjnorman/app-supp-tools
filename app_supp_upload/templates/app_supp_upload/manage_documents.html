@@ -12,6 +12,7 @@
       <p>
         <a href="{% url 'upload:deactive_file' pk=upload.pk %}">Deactivate</a>
         <a href="{{ upload.docfile.url }}">Download</a>
+        <a href="{% url 'tickets:map_docfile' pk=upload.pk %}">Process</a>
         File Name: {{ upload.file_name }}
       </p>
     {% endfor %}

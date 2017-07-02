@@ -1,0 +1,31 @@
+<form method="post">
+    {% csrf_token %}
+
+    {{ map_formset.management_form }}
+
+    {% for map_form in map_formset %}
+        <div class="map-formset">
+            {{ map_form.name }}
+            {% if map_form.name.errors %}
+                {% for error in map_form.name.errors %}
+                    {{ error|escape }}
+                {% endfor %}
+            {% endif %}
+
+            {{ map_form.user }}
+            {% if map_form.user.errors %}
+                {% for error in map_form.user.errors %}
+                    {{ error|escape }}
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    {% if map_formset.non_form_errors %}
+        {% for error in map_formset.non_form_errors %}
+            {{ error|escape }}
+        {% endfor %}
+    {% endif %}
+
+    <input type="submit" value="Update Profile" class="button"/>
+</form>

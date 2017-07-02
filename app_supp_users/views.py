@@ -39,7 +39,7 @@ def admin_profile_create(request, team_pk, user_pk):
             profile.save()
             if not profile.teams.filter(members=profile).exists():
                 profile.teams.add(team)
-        return redirect('users:user_detail', pk=user.pk)
+        return redirect('users:user_detail', user_pk=user.pk)
     else:
         form = ProfileForm()
     return render(
